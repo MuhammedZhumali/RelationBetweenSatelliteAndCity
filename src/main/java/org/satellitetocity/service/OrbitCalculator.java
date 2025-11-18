@@ -16,6 +16,11 @@ public class OrbitCalculator {
         double omega = Math.sqrt(MU/Math.pow(r, 3));
         double period = (2 * Math.PI) / omega;
 
+        SatelliteDto satelliteDto2 = new SatelliteDto();
+        satelliteDto2.setAltitudeMeters(r * period);
+        satelliteDto2.setTime(time);
+
+        return satelliteDto2;
     }
 }
 
