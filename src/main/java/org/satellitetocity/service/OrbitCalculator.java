@@ -1,44 +1,44 @@
 package org.satellitetocity.service;
 
-import org.satellitetocity.dto.SatelliteDto;
-import org.springframework.stereotype.Service;
+import org.satellitetocity.entity.SatelliteEntity;
 
 import java.time.Duration;
 import java.time.Instant;
 
-@Service
 public class OrbitCalculator {
 
-    private static final double R_EARTH = 6_371_000;
-    private static final double MU = 3.986004418e14;
+    private static final double R_EARTH = 6_371_000;    // meters
+    private static final double MU = 3.986004418e14;   // m^3/s^2
 
-    public SatelliteDto calculatePosition(SatelliteDto satelliteDto, Instant time) {
-        double r = R_EARTH + satelliteDto.getAltitudeMeters();
+    /**
+     * Computes a simple circular orbit position (placeholder).
+     * Latitude = 0 (equatorial orbit)
+     * Longitude changes linearly with time.
+     */
+    public static double[] computePosition(SatelliteEntity sat, Instant time) {
+
+        if (sat.getEpoch() == null) {
+            sat.setEpoch(Instant.now());
+        }
+
+        double altitude = sat.getAltitudeMeters();
+        double r = R_EARTH + altitude;
 
         double omega = Math.sqrt(MU / Math.pow(r, 3));
 
-        double t = Duration.between(satelliteDto.getTime(), time).toSeconds();
+        double t = Duration.between(sat.getEpoch(), time).toSeconds();
 
         double theta = omega * t;
 
-        double x = r * Math.cos(theta);
-        double y = r * Math.sin(theta);
+        double lon = Math.toDegrees(theta % (2 * Math.PI));
+        if (lon < 0) lon += 360;
 
-        double latitude = 0;
-        double longitude = Math.toDegrees(theta % (2 * Math.PI));
-        if (longitude < 0) longitude += 360;
+        double lat = 0.0;
 
-        SatelliteDto result = new SatelliteDto();
-        result.setX(x);
-        result.setY(y);
-        result.setAltitudeMeters(satelliteDto.getAltitudeMeters());
-        result.setTime(time);
-        result.setLongitudeDeg(longitude);
-        result.setLatitudeDeg(latitude);
-
-        return result;
+        return new double[] { lat, lon, altitude };
     }
 }
+
 
 
 /*

@@ -1,5 +1,6 @@
 package org.satellitetocity.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.satellitetocity.dto.CityDto;
 import org.satellitetocity.service.CityService;
 import org.springframework.web.bind.annotation.*;
@@ -8,12 +9,9 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping("/city")
+@RequiredArgsConstructor
 public class CityController {
     private final CityService cityService;
-
-    public CityController(CityService cityService) {
-        this.cityService = cityService;
-    }
 
     @GetMapping("/get/{cityId}")
     public CityDto getCity(@PathVariable Long cityId) {
@@ -23,5 +21,9 @@ public class CityController {
     @GetMapping("/get/all")
     public Collection<CityDto> getAllCities() {
         return cityService.getAllCities();
+    }
+    @PostMapping
+    public CityDto createCity(@RequestBody CityDto cityDto) {
+        return cityService.createCity(cityDto);
     }
 }
