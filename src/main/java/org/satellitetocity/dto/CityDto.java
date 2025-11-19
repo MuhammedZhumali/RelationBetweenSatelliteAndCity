@@ -14,3 +14,4 @@ public class CityDto {
     private double longitudeDeg;
     private double altitudeMeters;
 }
+//ss
