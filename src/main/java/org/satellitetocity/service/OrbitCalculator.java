@@ -3,6 +3,7 @@ package org.satellitetocity.service;
 import org.satellitetocity.dto.SatelliteDto;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 
 @Service
@@ -13,14 +14,29 @@ public class OrbitCalculator {
 
     public SatelliteDto calculatePosition(SatelliteDto satelliteDto, Instant time) {
         double r = R_EARTH + satelliteDto.getAltitudeMeters();
-        double omega = Math.sqrt(MU/Math.pow(r, 3));
-        double period = (2 * Math.PI) / omega;
 
-        SatelliteDto satelliteDto2 = new SatelliteDto();
-        satelliteDto2.setAltitudeMeters(r * period);
-        satelliteDto2.setTime(time);
+        double omega = Math.sqrt(MU / Math.pow(r, 3));
 
-        return satelliteDto2;
+        double t = Duration.between(satelliteDto.getTime(), time).toSeconds();
+
+        double theta = omega * t;
+
+        double x = r * Math.cos(theta);
+        double y = r * Math.sin(theta);
+
+        double latitude = 0;
+        double longitude = Math.toDegrees(theta % (2 * Math.PI));
+        if (longitude < 0) longitude += 360;
+
+        SatelliteDto result = new SatelliteDto();
+        result.setX(x);
+        result.setY(y);
+        result.setAltitudeMeters(satelliteDto.getAltitudeMeters());
+        result.setTime(time);
+        result.setLongitudeDeg(longitude);
+        result.setLatitudeDeg(latitude);
+
+        return result;
     }
 }
 

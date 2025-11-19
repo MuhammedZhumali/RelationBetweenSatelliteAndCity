@@ -11,5 +11,7 @@ public class SatelliteDto {
     private double latitudeDeg;
     private double longitudeDeg;
     private Instant time;
+    private double x;
+    private double y;
 }
 

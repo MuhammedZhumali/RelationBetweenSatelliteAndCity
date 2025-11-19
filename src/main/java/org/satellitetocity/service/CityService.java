@@ -4,7 +4,7 @@ import org.satellitetocity.dto.CityDto;
 import org.satellitetocity.repository.CityRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Collection;
 
 @Service
 public class CityService {
@@ -21,6 +21,10 @@ public class CityService {
             throw new RuntimeException("City not found"); // потом заменишь на нормальное исключение/ResponseStatus
         }
         return city;
+    }
+
+    public Collection<CityDto> getAllCities() {
+        return cityRepository.findAll();
     }
 
 }
