@@ -42,22 +42,30 @@ public class OrbitServiceImpl implements OrbitService {
     @Override
     public VisibilityDto getVisibility(Long satelliteId, Long cityId, Instant time) {
 
-        SatellitePositionDto satPos = getPosition(satelliteId, time);
-
+        SatellitePositionDto pos = getPosition(satelliteId, time);
         CityEntity city = cityRepository.findById(cityId)
                 .orElseThrow(() -> new RuntimeException("City not found"));
 
-        boolean visible = false;
-        double elevationDeg = -10;
+        double elevation = VisibilityCalculator.elevationDeg(
+                pos.getLatitudeDeg(),
+                pos.getLongitudeDeg(),
+                pos.getAltitudeMeters(),
+                city.getLatitudeDeg(),
+                city.getLongitudeDeg(),
+                city.getAltitudeMeters()
+        );
+
+        boolean visible = elevation > 0;
 
         return new VisibilityDto(
                 satelliteId,
                 cityId,
                 visible,
-                elevationDeg,
-                satPos.getTime()
+                elevation,
+                time
         );
     }
+
 
 
 }

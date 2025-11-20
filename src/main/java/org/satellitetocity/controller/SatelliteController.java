@@ -1,6 +1,7 @@
 package org.satellitetocity.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.satellitetocity.dto.SatelliteDto;
 import org.satellitetocity.dto.SatellitePositionDto;
 import org.satellitetocity.dto.VisibilityDto;
 import org.satellitetocity.service.OrbitService;
@@ -19,17 +20,25 @@ public class SatelliteController {
     @GetMapping("/{id}/position")
     public SatellitePositionDto getPosition(
             @PathVariable Long id,
-            @RequestParam(required = false) Instant time
+            @RequestParam(required = false) String time
     ) {
-        return orbitService.getPosition(id, time);
+        Instant t = (time == null) ? Instant.now() : Instant.parse(time);
+        return orbitService.getPosition(id, t);
     }
 
     @GetMapping("/{id}/visibility/{cityId}")
     public VisibilityDto getVisibility(
             @PathVariable Long id,
             @PathVariable Long cityId,
-            @RequestParam(required = false) Instant time
+            @RequestParam(required = false) String time
     ) {
-        return orbitService.getVisibility(id, cityId, time);
+        Instant t = (time == null) ? Instant.now() : Instant.parse(time);
+        return orbitService.getVisibility(id, cityId, t);
     }
+
+    @PostMapping("/create")
+    public SatelliteDto createSatellite(@RequestBody SatelliteDto dto) {
+        return satelliteService.createSatellite(dto);
+    }
+
 }
