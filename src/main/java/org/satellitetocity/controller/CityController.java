@@ -22,7 +22,8 @@ public class CityController {
     public Collection<CityDto> getAllCities() {
         return cityService.getAllCities();
     }
-    @PostMapping
+
+    @PostMapping("/create")
     public CityDto createCity(@RequestBody CityDto cityDto) {
         return cityService.createCity(cityDto);
     }
