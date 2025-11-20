@@ -10,48 +10,54 @@ public class OrbitCalculator {
     private static final double R_EARTH = 6_371_000;    // meters
     private static final double MU = 3.986004418e14;   // m^3/s^2
 
+    private static double rad(double deg) {
+        return deg * Math.PI / 180.0;
+    }
+
+    private static double deg(double rad) {
+        return rad * 180.0 / Math.PI;
+    }
+
     /**
-     * Computes a simple circular orbit position (placeholder).
-     * Latitude = 0 (equatorial orbit)
-     * Longitude changes linearly with time.
+     * Simple circular orbit propagation with inclination.
+     * RAAN ignored for now (good enough to see movement).
      */
     public static double[] computePosition(SatelliteEntity sat, Instant time) {
 
-        if (sat.getEpoch() == null) {
-            sat.setEpoch(Instant.now());
-        }
+        // If epoch is null → assume now
+        Instant epoch = sat.getEpoch() != null ? sat.getEpoch() : Instant.now();
 
-        double altitude = sat.getAltitudeMeters();
-        double r = R_EARTH + altitude;
+        // Orbit radius
+        double r = R_EARTH + sat.getAltitudeMeters();
 
+        // Angular velocity (rad/s)
         double omega = Math.sqrt(MU / Math.pow(r, 3));
 
-        double t = Duration.between(sat.getEpoch(), time).toSeconds();
+        // Time since epoch
+        double t = Duration.between(epoch, time).toSeconds();
 
-        double theta = omega * t;
+        // Position angle in orbit
+        double theta = omega * t;   // radians
 
-        double lon = Math.toDegrees(theta % (2 * Math.PI));
-        if (lon < 0) lon += 360;
+        // Convert to orbital plane x,y
+        double x_orbit = r * Math.cos(theta);
+        double y_orbit = r * Math.sin(theta);
 
-        double lat = 0.0;
+        // Inclination rotation
+        double inc = rad(sat.getInclinationDeg());
+        double z_orbit = Math.sin(inc) * y_orbit;
+        double x_inc = x_orbit;
+        double y_inc = Math.cos(inc) * y_orbit;
 
-        return new double[] { lat, lon, altitude };
+        // Convert to lat/lon
+        double lon = Math.atan2(y_inc, x_inc);
+        double hyp = Math.sqrt(x_inc * x_inc + y_inc * y_inc);
+        double lat = Math.atan2(z_orbit, hyp);
+
+        return new double[]{
+                deg(lat),
+                deg(lon),
+                sat.getAltitudeMeters()
+        };
     }
 }
-
-
-
-/*
-Theory Math
-    Earth Radius (R) = 6 371 000 meters = 6371 km
-    Standard Earth Gravitational parameter (u) = 3.98 * 10^14 m^3/s^2
-    Attitude (h) of satellite above earth (r) = R + h
-    Orbital period (T) = 2*Pi / w = 2*Pi * sqrt(r^3/u)
-    Circular orbit angular velocity (w) = sqrt(u/T^3)
-    Position in 2D at time t: x(t) = r*cos(wt), y(t) = r*sin(wt)
-
-    Eccentricity
-    if e = 0 - ideal circle
-    if e > 0 - ellipse
-    if e = 1 - very stretched orbit
-*/
